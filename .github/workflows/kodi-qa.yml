@@ -1,0 +1,27 @@
+name: Kodi QA
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  kodi-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+      - name: Build pinned dependency image
+        run: docker build -f .kodi/Dockerfile -t kandev-qa:ci .
+      - name: Run acceptance entry point offline
+        run: >-
+          docker run --rm --network none --read-only --cap-drop ALL
+          --security-opt no-new-privileges --cpus 2 --memory 8g --pids-limit 256
+          --user "$(id -u):$(id -g)" --tmpfs /tmp:rw,nosuid,nodev,size=256m
+          --mount "type=bind,src=$PWD,dst=/workspace"
+          -e HOME=/tmp -e PYTHONDONTWRITEBYTECODE=1
+          kandev-qa:ci python3 .kodi/qa.py

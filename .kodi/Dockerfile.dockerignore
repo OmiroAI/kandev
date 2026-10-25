@@ -1,0 +1,16 @@
+.git
+**/node_modules
+**/__pycache__
+**/.env
+**/.env.*
+!**/.env.example
+.kandev-dev
+.cache
+.worktrees
+.pr-screenshots
+**/test-results
+**/playwright-report
+**/bin/kandev*
+apps/backend/bin
+apps/web/dist
+.kodi-go-cache

@@ -1,0 +1,5 @@
+{
+  "profile": "go-web",
+  "reviewers": ["kubja"],
+  "qa_scope": "Pinned offline Go accounting/Stats regressions, Stats unit tests, web typecheck, locale and specification validation; browser and PostgreSQL parity evidence are required separately for affected changes."
+}
