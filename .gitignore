@@ -170,3 +170,7 @@ apps/backend/.manual-env/
 
 # Disposable release-upgrade rehearsal assets
 /.cache/upgrade/
+
+# Disposable offline QA build cache
+/.kodi-go-cache/
+/.kodi-tmp/
