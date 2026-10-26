@@ -121,7 +121,10 @@ services, handlers, and analytics, including actual PostgreSQL concurrent
 retries. A final boundary regression caught JSON escaping expanding a valid
 provider cursor beyond its input guard; the guard now accommodates the bounded
 escaped payload, and all analytics tests passed after the fix. The final scoped race rerun and Go lint passed with the fix included.
-Local implementation and work-order checks are complete. Exact-commit
+A transfer regression on SQLite and PostgreSQL also verifies that a valid
+original task receipt wins over an unrelated destination-workspace event with
+the same source identity. Changed payloads still conflict and no new row is
+created by the replay. Local implementation and work-order checks are complete. Exact-commit
 independent QA, different-model review, CI, and human approval remain pending. Public API reference:
 `docs/public/external-coordinators.md`. This work order remains in progress;
 operator acceptance of the fork still gates dispatch activation.

@@ -91,30 +91,21 @@ func (r *Repository) lockExternalActivityTask(ctx context.Context, tx *sqlx.Tx, 
 }
 
 func (r *Repository) externalActivityReplay(ctx context.Context, tx *sqlx.Tx, taskID, workspaceID string, activity *models.ExternalActivity, hash string) (string, error) {
-	rows, err := tx.QueryContext(ctx, r.db.Rebind(`SELECT id,task_id,payload_hash FROM task_external_activity
-		WHERE (workspace_id=? AND source_instance=? AND event_id=?)
-		OR (task_id=? AND source_instance=? AND event_id=?)`),
-		workspaceID, activity.SourceInstance, activity.EventID, taskID, activity.SourceInstance, activity.EventID)
+	var id, owner, recordedHash string
+	err := tx.QueryRowContext(ctx, r.db.Rebind(`SELECT id,task_id,payload_hash FROM task_external_activity
+  WHERE (workspace_id=? AND source_instance=? AND event_id=?)
+  OR (task_id=? AND source_instance=? AND event_id=?)
+  ORDER BY CASE WHEN task_id=? THEN 0 ELSE 1 END LIMIT 1`),
+		workspaceID, activity.SourceInstance, activity.EventID, taskID, activity.SourceInstance, activity.EventID, taskID).
+		Scan(&id, &owner, &recordedHash)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", errors.New("external activity insertion failed")
+	}
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = rows.Close() }()
-	var identity string
-	for rows.Next() {
-		var id, owner, recordedHash string
-		if err := rows.Scan(&id, &owner, &recordedHash); err != nil {
-			return "", err
-		}
-		if owner != taskID || recordedHash != hash {
-			return "", repoerrors.ErrExternalActivityConflict
-		}
-		identity = id
+	if owner != taskID || recordedHash != hash {
+		return "", repoerrors.ErrExternalActivityConflict
 	}
-	if err := rows.Err(); err != nil {
-		return "", err
-	}
-	if identity == "" {
-		return "", errors.New("external activity insertion failed")
-	}
-	return identity, nil
+	return id, nil
 }

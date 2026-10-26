@@ -152,3 +152,58 @@ func TestExternalActivityRetainsIdentityAfterTaskTransfer(t *testing.T) {
 		t.Fatal("stale workspace admitted")
 	}
 }
+
+func TestExternalActivityReplayAfterTransferRetainsOriginalNamespace(t *testing.T) {
+	verifyExternalActivityTransferNamespace(t, newUsageEventsTestRepo(t))
+}
+
+func TestPostgresExternalActivityReplayAfterTransferRetainsOriginalNamespace(t *testing.T) {
+	db := testutil.OpenIsolatedPostgres(t, testutil.PostgresDSNFromEnv(t))
+	repo, err := NewWithDB(db, db, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := repo.CreateWorkspace(context.Background(), &models.Workspace{ID: "ws-1", Name: "Original"}); err != nil {
+		t.Fatal(err)
+	}
+	verifyExternalActivityTransferNamespace(t, repo)
+}
+
+func verifyExternalActivityTransferNamespace(t *testing.T, repo *Repository) {
+	t.Helper()
+	ctx := context.Background()
+	if err := repo.CreateWorkspace(ctx, &models.Workspace{ID: "ws-transfer", Name: "Destination"}); err != nil {
+		t.Fatal(err)
+	}
+	createUsageEventsTestTask(t, repo, "external-namespace-original")
+	if err := repo.CreateTask(ctx, &models.Task{ID: "external-namespace-other", WorkspaceID: "ws-transfer", Title: "Other"}); err != nil {
+		t.Fatal(err)
+	}
+	activity := externalRunFixture()
+	original, err := repo.RecordExternalActivity(ctx, "external-namespace-original", "ws-1", "owner", activity)
+	if err != nil {
+		t.Fatal(err)
+	}
+	other, err := repo.RecordExternalActivity(ctx, "external-namespace-other", "ws-transfer", "owner", activity)
+	if err != nil || other.ID == original.ID {
+		t.Fatalf("separate namespace receipt=%+v error=%v", other, err)
+	}
+	if _, err := repo.db.Exec(`UPDATE tasks SET workspace_id='ws-transfer' WHERE id='external-namespace-original'`); err != nil {
+		t.Fatal(err)
+	}
+	replay, err := repo.RecordExternalActivity(ctx, "external-namespace-original", "ws-transfer", "owner", activity)
+	if err != nil || replay.Created || replay.ID != original.ID {
+		t.Fatalf("original namespace replay=%+v error=%v", replay, err)
+	}
+	activity.Model = "changed"
+	if _, err := repo.RecordExternalActivity(ctx, "external-namespace-original", "ws-transfer", "owner", activity); !errors.Is(err, repoerrors.ErrExternalActivityConflict) {
+		t.Fatalf("changed payload error=%v", err)
+	}
+	var count int
+	if err := repo.db.Get(&count, `SELECT COUNT(*) FROM task_external_activity`); err != nil {
+		t.Fatal(err)
+	}
+	if count != 2 {
+		t.Fatalf("namespace records=%d want 2", count)
+	}
+}

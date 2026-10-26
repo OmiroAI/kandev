@@ -27,3 +27,13 @@ the npm CLI entry points remain defined by `apps/cli/package.json`.
 ## Confirmed lessons
 
 Record confirmed reusable review findings with source URLs and verification.
+
+### Receipt replay after task moves
+
+[PR #2](https://github.com/OmiroAI/kandev/pull/2) covers a destination namespace
+that already contains the same external source-instance/event identity on a
+different task. A lookup that rejects any foreign match incorrectly
+rejects an identical replay after transfer. Prioritize the existing task binding
+and its payload hash; classify the destination collision only when that binding
+is absent. The SQLite and PostgreSQL transfer-namespace regressions verify the
+original receipt, changed-payload conflicts, and exactly two stored records.

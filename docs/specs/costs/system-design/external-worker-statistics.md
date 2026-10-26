@@ -128,6 +128,14 @@ Count external review/QA event identities, not commit SHAs, moves between board
 columns, or HTTP attempts. This yields two iterations for two verdicts on the
 same commit but one for repeated delivery of one verdict.
 
+### Replay after workspace namespace reuse
+
+For an already-recorded task event, resolve the original task binding before
+classifying a collision in the current workspace. Two original workspace
+namespaces may legitimately contain the same source-instance/event pair; moving
+one task into the other workspace must not invalidate an identical replay or
+change either receipt. A changed task payload still conflicts.
+
 ## Read API
 
 Add authorized `GET /api/v1/workspaces/:id/stats/usage` with existing
