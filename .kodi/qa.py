@@ -53,7 +53,7 @@ def main():
         './internal/task/handlers','./internal/task/usage','./internal/analytics/...',
         './internal/persistence/requiredstores',
         cwd=ROOT/'apps/backend')
-    run('pnpm','test','app/stats','lib/api/domains/stats-api.test.ts',cwd=ROOT/'apps/web')
+    run('pnpm','test','app/stats','lib/api/domains/stats-api.test.ts','hooks/domains/stats/use-usage-stats.test.ts',cwd=ROOT/'apps/web')
     run('pnpm','run','typecheck',cwd=ROOT/'apps/web')
     run('pnpm','run','i18n:check',cwd=ROOT/'apps/web')
 

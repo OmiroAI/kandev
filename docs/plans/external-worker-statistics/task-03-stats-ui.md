@@ -1,7 +1,7 @@
 ---
 id: "03-stats-ui"
 title: "Existing Stats UI"
-status: pending
+status: in_progress
 wave: 3
 depends_on: ['02-activity-api']
 plan: "plan.md"
@@ -107,10 +107,11 @@ belong only in the image-build phase; independent QA has networking disabled.
 
 ```bash
 (cd apps && pnpm install --frozen-lockfile)
-(cd apps/web && pnpm test app/stats lib/api/domains/stats-api.test.ts)
+(cd apps/web && pnpm test app/stats lib/api/domains/stats-api.test.ts hooks/domains/stats/use-usage-stats.test.ts)
 (cd apps/web && pnpm run typecheck)
 (cd apps/web && pnpm run i18n:check)
-(cd apps/web && pnpm e2e:run e2e/tests/external-worker-statistics.spec.ts --project=chromium)
+(cd apps/web && pnpm e2e:run --project chromium e2e/tests/stats/external-worker-statistics.spec.ts --retries=0)
+(cd apps/web && pnpm e2e:run --project mobile-chrome e2e/tests/stats/mobile-external-worker-statistics.spec.ts --retries=0)
 git diff --check
 ```
 
@@ -120,11 +121,15 @@ git diff --check
 - `apps/web/lib/api/domains/stats-api.ts`
 - `apps/web/lib/types/http`
 - `apps/web/src/locales`
-- `apps/web/e2e/tests/external-worker-statistics.spec.ts`
+- `apps/web/e2e/tests/stats/external-worker-statistics.spec.ts`
+- `apps/web/e2e/tests/stats/mobile-external-worker-statistics.spec.ts`
 
 ## Dependencies
 
-Prior work orders: ['02-activity-api'].
+Prior work order: 02-activity-api. Its local implementation, full task/analytics
+regressions, SQLite/PostgreSQL race/upgrade checks, lint and hooks are complete
+in PR #2. Independent acceptance and fresh different-model review remain pending. Reversible local UI work proceeds on this stacked
+branch without enabling repository dispatch or changing merge gates.
 
 ## Risks
 
@@ -142,4 +147,28 @@ The existing E2E runner supports `--project=chromium` and file arguments. Depend
 
 ## Results
 
-Pending.
+Implemented the usage section in existing Stats, using the shared range control
+and a dedicated all/native/external source selector. It includes known/complete
+token totals, incomplete observations, worker/review/QA/native record counts,
+reported worker time, a bounded UTC chart with a daily values table, independent
+provider/task paging, desktop rows and phone cards. Copy resolves at render in
+all required locales; Traditional Chinese and pseudo were generated with the
+repository tools.
+
+API-client, request-ownership and daily-series regressions passed with the
+owning Stats suite (47 tests). Full TypeScript, locale parity and scoped lint
+passed. The browser RED gate observed zero displayed versus 120 known tokens
+after a real committed POST with a deliberately dropped response and an
+identical replay. Desktop and phone runs use the managed runner, production
+assets, one worker, no retries, and an offline pinned toolchain image.
+
+The desktop scenario covers UTC dates, partial counts, review/QA iterations,
+keyboard source selection, 50-row task pagination, refresh failure and retry.
+The phone scenario verifies cards, a 44px touch target, an actual hit test and
+no horizontal overflow at 320px. Legacy Stats recovery scenarios are included;
+their injected outages now remain active until the explicit retry step so a
+foreground refresh cannot erase the assertion window.
+
+Independent host acceptance, combined-PR model review, software CI and human
+approval remain required. No dashboard/runtime deployment or dispatch activation
+is part of this change.

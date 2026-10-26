@@ -6,15 +6,14 @@ test.describe("Stats section recovery", () => {
     testPage,
     seedData,
   }) => {
-    let dailyRequests = 0;
+    let allowDailySuccess = false;
     await testPage.route("**/api/v1/**", async (route) => {
       const url = new URL(route.request().url());
       if (url.pathname !== `/api/v1/workspaces/${seedData.workspaceId}/stats/daily-activity`) {
         await route.continue();
         return;
       }
-      dailyRequests += 1;
-      if (dailyRequests === 1) {
+      if (!allowDailySuccess) {
         await route.fulfill({
           status: 503,
           headers: { "Retry-After": "1" },
@@ -45,6 +44,7 @@ test.describe("Stats section recovery", () => {
       { predicate: (response) => response.ok() },
     );
     await expect(testPage.getByRole("button", { name: "Copy Stats", exact: true })).toBeDisabled();
+    allowDailySuccess = true;
     await testPage.getByRole("button", { name: "Retry", exact: true }).click();
     await recoveredDailyRead;
     await expect(activityStatus).toHaveCount(0);

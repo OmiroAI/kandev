@@ -1092,11 +1092,22 @@
       ],
       "sources": [
         "apps/backend/internal/task/handlers/task_external_activity_handlers.go",
-        "apps/backend/internal/analytics/handlers/usage_stats_handlers.go"
+        "apps/backend/internal/analytics/handlers/usage_stats_handlers.go",
+        "apps/web/app/stats/usage-stats-section.tsx",
+        "apps/web/app/stats/usage-totals.tsx",
+        "apps/web/app/stats/usage-details.tsx",
+        "apps/web/app/stats/usage-daily-chart.tsx",
+        "apps/web/app/stats/usage-daily-series.ts",
+        "apps/web/hooks/domains/stats/use-usage-stats.ts",
+        "apps/web/lib/types/http-usage-stats.ts"
       ],
       "tests": [
         "apps/backend/internal/task/handlers/task_external_activity_handlers_test.go",
-        "apps/backend/internal/analytics/repository/sqlite/usage_stats_test.go"
+        "apps/backend/internal/analytics/repository/sqlite/usage_stats_test.go",
+        "apps/web/hooks/domains/stats/use-usage-stats.test.ts",
+        "apps/web/app/stats/usage-daily-series.test.ts",
+        "apps/web/e2e/tests/stats/external-worker-statistics.spec.ts",
+        "apps/web/e2e/tests/stats/mobile-external-worker-statistics.spec.ts"
       ]
     }
   ],

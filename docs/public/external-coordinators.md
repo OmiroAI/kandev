@@ -69,6 +69,22 @@ Invalid input returns `400`, oversized bodies `413`, and unsupported content typ
 returns `403`. Temporary storage unavailability can return `503`. Retry transport
 failures with the original identity and body; investigate `409` before resending.
 
+## View usage in Stats
+
+Open **Stats** for a workspace. The **Token usage** section shares the page's
+week, month, and all-time range control. **Usage source** selects all sources,
+native usage, or external workers.
+
+The summary shows worker runs, review iterations, QA runs, native ledger records,
+and reported worker time. A value labelled **known** is a subtotal with missing
+measurements; the incomplete-observation count explains why it is partial.
+**Daily values** expands the UTC chart's accessible daily table. Provider/model
+and task lists have separate next-page controls. Tasks appear as cards on phones.
+
+**Refresh usage** updates the current pages. Failed refreshes retain previous
+data and offer **Retry**. Changing workspace, source, or range clears the previous
+selection's data while the new request loads.
+
 ## Read usage statistics
 
 Send `GET /api/v1/workspaces/{workspace_id}/stats/usage`.
