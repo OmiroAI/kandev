@@ -172,3 +172,22 @@ foreground refresh cannot erase the assertion window.
 Independent host acceptance, combined-PR model review, software CI and human
 approval remain required. No dashboard/runtime deployment or dispatch activation
 is part of this change.
+
+
+### CI follow-up
+
+Owner-requested fork scope makes Windows validation opt-in. Linux/static,
+PostgreSQL and browser gates remain required. Docs previews are opt-in so docs
+validation does not depend on the upstream publisher repository. CI remediation
+also names the external-source constant for full-branch Go lint, selects exact
+repository option names, confirms Monaco keyboard focus, and measures settled
+mobile targets at browser layout precision. Affected workflow contracts and exact
+failed browser scenarios are the focused verification; remote acceptance of the
+remediation commit remains pending until its checks finish.
+
+
+Local follow-up verification passed: 26 backend workflow contract tests, three
+docs workflow tests, analytics `UsageStats` repository tests under `-race`, scoped
+Go lint with zero findings, and ESLint/spec checks. The two failed desktop
+scenarios each passed three consecutive attempts, and the failed mobile scenario
+passed three consecutive attempts, all with retries disabled on the fresh build.

@@ -611,6 +611,7 @@ jobs:
           POSTGRES_18_RESULT: ${{ needs['postgres-18'].result }}
           SIDEBAR_RESOURCES_RESULT: ${{ needs['sidebar-resources'].result }}
           TEST_WINDOWS_RESULT: ${{ needs['test-windows'].result }}
+          WINDOWS_ENABLED: ${{ vars.KANDEV_WINDOWS_CI }}
         run: |
           set -euo pipefail
           if [[ "${CHANGES_RESULT}" != "success" || -z "${RUNNER_PLAN}" ]]; then
@@ -635,6 +636,9 @@ jobs:
             name="${entry%%:*}"
             result="${entry#*:}"
             required="${expected}"
+            if [[ "${name}" == "test-windows" && "${WINDOWS_ENABLED}" != "true" ]]; then
+              required=skipped
+            fi
             if [[ "${name}" == "sidebar-resources" ]]; then
               case "${SIDEBAR_REQUIRED}" in
                 true) required=success ;;
@@ -963,7 +967,8 @@ jobs:
   test-windows:
     name: Backend (windows, ${{ matrix.label }})
     needs: changes
-    if: needs.changes.outputs.run == 'true'
+    # This fork targets Linux; Windows validation is an explicit operator opt-in.
+    if: needs.changes.outputs.run == 'true' && vars.KANDEV_WINDOWS_CI == 'true'
     runs-on: windows-latest
     # Keep compilation, process, platform, persistence and settings work independent.
     # A cold Windows race build and test can exceed 60 minutes before cleanup.

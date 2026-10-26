@@ -14,6 +14,8 @@ import (
 // JSON escaping can expand each bounded metadata byte sixfold before base64.
 const maxUsageProviderCursorBytes = 8192
 
+const usageSourceExternal = "external"
+
 var errInvalidUsageQuery = analyticserrors.ErrInvalidUsageQuery
 
 type usageProviderCursor struct {
@@ -23,7 +25,7 @@ type usageProviderCursor struct {
 }
 
 func validateUsageQuery(query models.UsageStatsQuery) error {
-	if query.Source != "all" && query.Source != "native" && query.Source != "external" {
+	if query.Source != "all" && query.Source != "native" && query.Source != usageSourceExternal {
 		return errInvalidUsageQuery
 	}
 	span := query.Until.Sub(query.DailyStart)
@@ -46,7 +48,7 @@ func decodeUsageProviderCursor(value string) (usageProviderCursor, error) {
 	if err != nil || json.Unmarshal(data, &cursor) != nil {
 		return cursor, errInvalidUsageQuery
 	}
-	if (cursor.Source != "native" && cursor.Source != "external") || len(cursor.Provider) > 256 || len(cursor.Model) > 256 {
+	if (cursor.Source != "native" && cursor.Source != usageSourceExternal) || len(cursor.Provider) > 256 || len(cursor.Model) > 256 {
 		return cursor, errInvalidUsageQuery
 	}
 	return cursor, nil

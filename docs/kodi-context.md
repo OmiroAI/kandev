@@ -37,3 +37,21 @@ rejects an identical replay after transfer. Prioritize the existing task binding
 and its payload hash; classify the destination collision only when that binding
 is absent. The SQLite and PostgreSQL transfer-namespace regressions verify the
 original receipt, changed-payload conflicts, and exactly two stored records.
+
+
+## Fork CI scope and browser assertions
+
+[PR #2](https://github.com/OmiroAI/kandev/pull/2) retains Linux, PostgreSQL and
+browser acceptance. Windows CI is disabled by default at the owner's request;
+`KANDEV_WINDOWS_CI=true` is an explicit repository-variable opt-in, and the
+backend aggregate requires the resulting skip when it is off. Docs preview
+publication likewise requires `KANDEV_DOCS_DEPLOY=true`; a fork without the
+upstream landing repository must still validate docs without attempting deploy.
+Workflow contract tests cover both gates.
+
+The same PR's CI exposed prefix collisions in repository option names. Select
+an exact accessible option name rather than the first substring match. Monaco
+keyboard tests must confirm the native EditContext holds focus before shortcuts.
+For animated mobile controls, wait for settled geometry and compare dimensions
+at Chromium's 1/64px layout precision; keep the 44px target and real tap checks.
+Verification uses the exact failed desktop and phone scenarios without retries.

@@ -111,7 +111,7 @@ func TestUsageStatsCombinesKnownCountsAndIndependentPages(t *testing.T) {
 	if len(stats.Tasks) != 1 || stats.Tasks[0].TaskID != "a-external" || stats.NextTaskCursor != "a-external" {
 		t.Fatalf("task page=%+v cursor=%q", stats.Tasks, stats.NextTaskCursor)
 	}
-	if len(stats.Providers) != 1 || stats.Providers[0].Source != "external" || stats.NextProviderCursor == "" {
+	if len(stats.Providers) != 1 || stats.Providers[0].Source != usageSourceExternal || stats.NextProviderCursor == "" {
 		t.Fatalf("provider page=%+v", stats.Providers)
 	}
 	query.TaskCursor, query.ProviderCursor = stats.NextTaskCursor, stats.NextProviderCursor
