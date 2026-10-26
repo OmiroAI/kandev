@@ -191,3 +191,10 @@ docs workflow tests, analytics `UsageStats` repository tests under `-race`, scop
 Go lint with zero findings, and ESLint/spec checks. The two failed desktop
 scenarios each passed three consecutive attempts, and the failed mobile scenario
 passed three consecutive attempts, all with retries disabled on the fresh build.
+
+A subsequent full CI run also exposed the native-source lint constant and browser
+setup races for pseudo-locale boot, mobile outside-tap dismissal, and a subtask
+check that assumed workflow automation leaves the composer idle. Their targeted
+fixes passed 12 pseudo-locale attempts, three menu-gesture attempts and three
+subtask attempts without retries; the subtask run used the fresh backend build.
+Final remote CI and independent acceptance remain pending on the resulting head.

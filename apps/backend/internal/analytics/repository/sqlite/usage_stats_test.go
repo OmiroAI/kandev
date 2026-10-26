@@ -122,7 +122,7 @@ func TestUsageStatsCombinesKnownCountsAndIndependentPages(t *testing.T) {
 	if len(second.Tasks) != 1 || second.Tasks[0].TaskID != "b-native" || second.Tasks[0].TokensTotal == nil || *second.Tasks[0].TokensTotal != 64 {
 		t.Fatalf("native task=%+v", second.Tasks)
 	}
-	if len(second.Providers) != 1 || second.Providers[0].Source != "native" || second.NextProviderCursor != "" {
+	if len(second.Providers) != 1 || second.Providers[0].Source != usageSourceNative || second.NextProviderCursor != "" {
 		t.Fatalf("native provider=%+v", second.Providers)
 	}
 	query.TaskCursor = second.NextTaskCursor
@@ -139,7 +139,7 @@ func TestUsageStatsSourceAndWorkspaceIsolation(t *testing.T) {
 	repo, tasks := usageStatsFixture(t)
 	seedStatsObservations(t, tasks)
 	query := statsQuery()
-	query.Source = "native"
+	query.Source = usageSourceNative
 	stats, err := repo.GetUsageStats(context.Background(), "ws", query)
 	if err != nil {
 		t.Fatal(err)

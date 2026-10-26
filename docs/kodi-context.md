@@ -55,3 +55,14 @@ keyboard tests must confirm the native EditContext holds focus before shortcuts.
 For animated mobile controls, wait for settled geometry and compare dimensions
 at Chromium's 1/64px layout precision; keep the 44px target and real tap checks.
 Verification uses the exact failed desktop and phone scenarios without retries.
+
+Pseudo-locale browser coverage must seed `kandev_locale` on the browser context
+before the first navigation. Changing the cookie between an English boot and a
+reload races startup locale persistence. PR #2 covers the failed office-routines
+screen and all helper call sites with 12 retry-free attempts.
+
+MCP subtask coverage should observe the completed turn and persisted child, not
+require an idle composer: workflow automation may already be starting its next
+agent. Outside-tap menu tests wait for the opening animation before dismissal,
+matching their other menu interactions. Both failed scenarios passed three
+retry-free attempts after these changes.

@@ -497,12 +497,12 @@ const ALLOWED = [
  */
 const ACCENTED = /[À-ɏ]/;
 
-async function activatePseudo(page: Page, url: string) {
+async function activatePseudo(page: Page, url: string, origin: string) {
+  // Seed before boot so English startup cannot overwrite the locale under test.
+  await page
+    .context()
+    .addCookies([{ name: "kandev_locale", value: "pseudo", url: origin, sameSite: "Lax" }]);
   await page.goto(url);
-  await page.evaluate(() => {
-    document.cookie = "kandev_locale=pseudo; path=/; max-age=31536000; SameSite=Lax";
-  });
-  await page.reload();
   // `<html lang>` proves the SHELL is on the pseudo locale and nothing more: the
   // Go shell writes it from the cookie, so it is already correct in the HTML the
   // browser parses, before any script has run. Every stronger fact — the route
@@ -847,12 +847,13 @@ test.describe("i18n pseudo-locale coverage", () => {
     test(`distinguishes stored secret name ${name} from untranslated action labels`, async ({
       testPage,
       apiClient,
+      backend,
     }) => {
       const screen = SCREENS.find((item) => item.url === "/settings/secrets");
       if (!screen) throw new Error("The secrets screen is missing");
       const secret = await apiClient.createSecret(name, "synthetic-pseudo-test-value");
       try {
-        await activatePseudo(testPage, screen.url);
+        await activatePseudo(testPage, screen.url, backend.frontendUrl);
         await waitForScreen(testPage, screen);
         await waitForTransientLoadingToFinish(testPage);
         const row = testPage.getByTestId(`secret-row-${secret.id}`);
@@ -893,8 +894,8 @@ test.describe("i18n pseudo-locale coverage", () => {
   }
 
   for (const screen of SCREENS) {
-    test(`no un-externalized copy on ${screen.name}`, async ({ testPage, apiClient }) => {
-      await activatePseudo(testPage, screen.url);
+    test(`no un-externalized copy on ${screen.name}`, async ({ testPage, apiClient, backend }) => {
+      await activatePseudo(testPage, screen.url, backend.frontendUrl);
       await waitForScreen(testPage, screen);
       await waitForTransientLoadingToFinish(testPage);
 
@@ -950,11 +951,11 @@ test.describe("i18n pseudo-locale coverage", () => {
    * terminal and sprites legitimately render no fully-accented attribute at all,
    * so it fired on three screens that were fine.
    */
-  test("the attribute pass recognizes migrated attribute copy", async ({ testPage }) => {
+  test("the attribute pass recognizes migrated attribute copy", async ({ testPage, backend }) => {
     const appearance = SCREENS.find((screen) => screen.url === "/settings/preferences/appearance");
     if (!appearance) throw new Error("the appearance screen is no longer in SCREENS");
 
-    await activatePseudo(testPage, appearance.url);
+    await activatePseudo(testPage, appearance.url, backend.frontendUrl);
     await waitForScreen(testPage, appearance);
     await waitForTransientLoadingToFinish(testPage);
 

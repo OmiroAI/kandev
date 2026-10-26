@@ -15,6 +15,7 @@ import (
 const maxUsageProviderCursorBytes = 8192
 
 const usageSourceExternal = "external"
+const usageSourceNative = "native"
 
 var errInvalidUsageQuery = analyticserrors.ErrInvalidUsageQuery
 
@@ -25,7 +26,7 @@ type usageProviderCursor struct {
 }
 
 func validateUsageQuery(query models.UsageStatsQuery) error {
-	if query.Source != "all" && query.Source != "native" && query.Source != usageSourceExternal {
+	if query.Source != "all" && query.Source != usageSourceNative && query.Source != usageSourceExternal {
 		return errInvalidUsageQuery
 	}
 	span := query.Until.Sub(query.DailyStart)
@@ -48,7 +49,7 @@ func decodeUsageProviderCursor(value string) (usageProviderCursor, error) {
 	if err != nil || json.Unmarshal(data, &cursor) != nil {
 		return cursor, errInvalidUsageQuery
 	}
-	if (cursor.Source != "native" && cursor.Source != usageSourceExternal) || len(cursor.Provider) > 256 || len(cursor.Model) > 256 {
+	if (cursor.Source != usageSourceNative && cursor.Source != usageSourceExternal) || len(cursor.Provider) > 256 || len(cursor.Model) > 256 {
 		return cursor, errInvalidUsageQuery
 	}
 	return cursor, nil
