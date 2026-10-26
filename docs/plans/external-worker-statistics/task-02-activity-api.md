@@ -1,7 +1,7 @@
 ---
 id: "02-activity-api"
 title: "External activity API and projections"
-status: pending
+status: in_progress
 wave: 2
 depends_on: ['01-fork-onboarding']
 plan: "plan.md"
@@ -74,7 +74,10 @@ git diff --check
 
 ## Dependencies
 
-Prior work orders: ['01-fork-onboarding'].
+Prior work order: 01-fork-onboarding. Its local toolchain, scoped offline
+acceptance, Gemini review and software CI are complete. Operator/independent
+acceptance remains a dispatch gate, not a prerequisite for reversible local
+implementation on this stacked development branch.
 
 ## Risks
 
@@ -92,4 +95,33 @@ Follow `usage_events_migrations.go` and `base_migrations.go` for migration regis
 
 ## Results
 
-Pending.
+Implemented the append-only task activity ledger, authorized strict JSON write
+route, and workspace usage projections. Replay identities survive retries and
+task transfers. Current workspace ownership controls reads; ingestion namespace
+snapshots remain immutable. Native session and usage contracts stay separate.
+
+Focused red/green tests cover validation, concurrent replay, conflicts, task
+scope, HTTP limits, known/unknown counts, independent cursors, UTC dates,
+backfill, and current workspace ownership. Actual PostgreSQL storage and usage
+projection tests passed, including a non-UTC database session. SQL guard,
+specification validation, public documentation validation, and dependency lock
+regressions passed locally.
+
+All planned task and analytics regression packages passed locally. The initial
+full run hit its default timeout while creating temporary databases on disk;
+in-memory scratch completed the full task-store package within that timeout.
+Service/handler directory tests additionally required scratch outside the
+shared-writable checkout parent. Their full packages passed with private trusted
+scratch; production checks and sandbox security settings were unchanged.
+
+The required persistence store-conformance suite passed with `-race` on SQLite
+and with the actual isolated PostgreSQL fixture. This includes the tagged
+previous-stable upgrade path. Accounting-specific race checks also passed across models, repositories,
+services, handlers, and analytics, including actual PostgreSQL concurrent
+retries. A final boundary regression caught JSON escaping expanding a valid
+provider cursor beyond its input guard; the guard now accommodates the bounded
+escaped payload, and all analytics tests passed after the fix. The final scoped race rerun and Go lint passed with the fix included.
+Local implementation and work-order checks are complete. Exact-commit
+independent QA, different-model review, CI, and human approval remain pending. Public API reference:
+`docs/public/external-coordinators.md`. This work order remains in progress;
+operator acceptance of the fork still gates dispatch activation.

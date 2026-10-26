@@ -95,7 +95,13 @@ non-writable. Workspace membership, PAT scopes, and auth-disabled local mode
 retain existing semantics; no new secret or authentication scheme is added.
 The supplied source UUID is an accounting namespace, never a capability.
 Recheck ownership through the normal service/repository transaction boundary.
-Task deletion cascades; archive retains events. Immutable insertion has no
+Task deletion cascades; archive retains events. The ingestion workspace is
+an immutable namespace snapshot, not an authorization source or a cascading
+workspace foreign key: deletion of a former workspace must not erase activity
+for a transferred task. Reads authorize and filter the task's current workspace.
+A second unique task/source/event key keeps replay idempotent after transfer;
+workspace-scoped collisions on another task still conflict. Include the table
+in the existing task-transfer preservation catalog. Immutable insertion has no
 public update/delete route. No event-bus replay through native lifecycle.
 
 This separate external activity source is deliberate: it records worker runs

@@ -5,6 +5,9 @@ import (
 	"fmt"
 )
 
+// ErrInvalidUsageQuery rejects unsupported usage ranges, sources and cursors.
+var ErrInvalidUsageQuery = errors.New("invalid usage statistics query")
+
 // ErrAnalyticsBusy marks a bounded analytics operation that could not finish
 // within its admission-plus-query budget.
 var ErrAnalyticsBusy = errors.New("analytics busy")

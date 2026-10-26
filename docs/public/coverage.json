@@ -1080,6 +1080,24 @@
         "scripts/lint-harness-files.test.py",
         ".github/scripts/lint-action-pinning_test.py"
       ]
+    },
+    {
+      "id": "external-coordinator-accounting",
+      "audiences": [
+        "operator"
+      ],
+      "stability": "experimental",
+      "docs": [
+        "external-coordinators"
+      ],
+      "sources": [
+        "apps/backend/internal/task/handlers/task_external_activity_handlers.go",
+        "apps/backend/internal/analytics/handlers/usage_stats_handlers.go"
+      ],
+      "tests": [
+        "apps/backend/internal/task/handlers/task_external_activity_handlers_test.go",
+        "apps/backend/internal/analytics/repository/sqlite/usage_stats_test.go"
+      ]
     }
   ],
   "exclusions": {

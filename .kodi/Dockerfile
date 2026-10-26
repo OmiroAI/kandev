@@ -6,7 +6,7 @@ WORKDIR /opt/kandev/source
 COPY . .
 RUN cd apps && pnpm install --frozen-lockfile
 RUN cd apps/backend && go mod download
-RUN GOCACHE=/opt/kandev/go-build sh -c 'cd apps/backend && go test -run="^$" ./internal/task/models ./internal/task/dto ./internal/task/repository/sqlite ./internal/task/service ./internal/task/handlers ./internal/task/usage ./internal/analytics/...'
+RUN GOCACHE=/opt/kandev/go-build sh -c 'cd apps/backend && go test -run="^$" ./internal/task/models ./internal/task/dto ./internal/task/repository/sqlite ./internal/task/service ./internal/task/handlers ./internal/task/usage ./internal/analytics/... ./internal/persistence/requiredstores'
 RUN python3 .kodi/prepare-locks.py
 RUN mkdir -p /go/pkg && ln -s /root/go/pkg/mod /go/pkg/mod && \
     chmod a+rx /root /root/go && \

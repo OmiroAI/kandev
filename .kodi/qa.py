@@ -51,6 +51,7 @@ def main():
     run('go','test','-count=1','-run','Usage|Stats|Activity','./internal/task/models','./internal/task/dto',
         './internal/task/repository/sqlite','./internal/task/service',
         './internal/task/handlers','./internal/task/usage','./internal/analytics/...',
+        './internal/persistence/requiredstores',
         cwd=ROOT/'apps/backend')
     run('pnpm','test','app/stats','lib/api/domains/stats-api.test.ts',cwd=ROOT/'apps/web')
     run('pnpm','run','typecheck',cwd=ROOT/'apps/web')
