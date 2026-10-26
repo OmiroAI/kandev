@@ -176,25 +176,27 @@ is part of this change.
 
 ### CI follow-up
 
-Owner-requested fork scope makes Windows validation opt-in. Linux/static,
-PostgreSQL and browser gates remain required. Docs previews are opt-in so docs
-validation does not depend on the upstream publisher repository. CI remediation
-also names the external-source constant for full-branch Go lint, selects exact
-repository option names, confirms Monaco keyboard focus, and measures settled
-mobile targets at browser layout precision. Affected workflow contracts and exact
-failed browser scenarios are the focused verification; remote acceptance of the
-remediation commit remains pending until its checks finish.
+Windows execution is opt-in at the owner's request; Linux/static, PostgreSQL
+and browser gates remain required. Docs previews are opt-in so validation does
+not depend on the upstream publisher repository. Executable gate fixtures cover
+both enabled and disabled Windows results.
 
+Full-branch lint uses named native/external source constants. Browser fixes use
+exact repository option names, assert Monaco keyboard focus, measure settled
+mobile targets, seed pseudo-locale before boot, and observe completed turns
+instead of assuming workflow automation leaves a composer idle. Cleanup restores
+storage settings through the existing API helper. MCP report cases retain one
+scoped HTTP interceptor across reloads, preserving every product assertion.
 
-Local follow-up verification passed: 26 backend workflow contract tests, three
-docs workflow tests, analytics `UsageStats` repository tests under `-race`, scoped
-Go lint with zero findings, and ESLint/spec checks. The two failed desktop
-scenarios each passed three consecutive attempts, and the failed mobile scenario
-passed three consecutive attempts, all with retries disabled on the fresh build.
+Local verification passed: 26 backend workflow contracts, five executable gate
+tests, three docs workflow tests, analytics UsageStats repository tests under
+`-race`, unfiltered analytics-package lint and scoped ESLint/spec checks. Exact
+failed scenarios ran without retries: six desktop/three phone attempts for the
+initial failures, 12 pseudo-locale attempts, three menu gestures, three subtask
+attempts, three storage cleanups, and three mobile MCP reports. The shared MCP
+desktop scenario is also part of verification.
 
-A subsequent full CI run also exposed the native-source lint constant and browser
-setup races for pseudo-locale boot, mobile outside-tap dismissal, and a subtask
-check that assumed workflow automation leaves the composer idle. Their targeted
-fixes passed 12 pseudo-locale attempts, three menu-gesture attempts and three
-subtask attempts without retries; the subtask run used the fresh backend build.
-Final remote CI and independent acceptance remain pending on the resulting head.
+A PostgreSQL cohort hit a dependency-proxy HTTP/2 error before tests ran; this
+is transport evidence, not passing acceptance. Fresh remote CI and independent
+acceptance remain pending after the final fixture changes. No merge, deployment
+or dispatch activation is claimed.

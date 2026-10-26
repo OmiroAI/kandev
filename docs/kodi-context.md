@@ -66,3 +66,9 @@ require an idle composer: workflow automation may already be starting its next
 agent. Outside-tap menu tests wait for the opening animation before dismissal,
 matching their other menu interactions. Both failed scenarios passed three
 retry-free attempts after these changes.
+
+Storage UI tests restore policy through the existing API helper; a second save
+can legitimately overlap its first success toast. MCP report tests keep their
+HTTP route installed across report-state cases, then remove only their handler.
+PR #2's trace showed a reload bypassing a removed/reinstalled per-case route.
+Focused cleanup and MCP cases passed three attempts each without retries.
