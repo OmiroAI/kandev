@@ -562,7 +562,7 @@ export function useTaskCreateDialogSetup(
       savedBaseSubmitBlockedReason ??
       workflowAgentOverridesBlockedReason ??
       data.executorOwnershipBlockedReason,
-    !isTaskStarted && computed.noCompatibleAgent,
+    !isTaskStarted && !(isEditMode && !fs.agentProfileId) && computed.noCompatibleAgent,
   );
   const enhance = useEnhanceForDialog(fs, resolvedProps.taskId, resolvedProps.open);
   const handleJiraImport = useJiraImportHandler(fs, data.handlers.handleTaskNameChange);

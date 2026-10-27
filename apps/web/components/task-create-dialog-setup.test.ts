@@ -227,6 +227,16 @@ describe("compatibility submit guard", () => {
 });
 
 describe("workflow override keyboard submit guard", () => {
+  it("allows form and keyboard metadata updates without a compatible native agent", () => {
+    mocks.compatibilityBlocked = true;
+    mocks.agentCompatState = "none-compatible";
+    const { result } = renderHook(() => useTaskCreateDialogSetup({ ...props, mode: "edit" }));
+    const event = { preventDefault: vi.fn() } as unknown as FormEvent;
+    result.current.guardedHandleSubmit(event);
+    mocks.shortcutHandler?.({ preventDefault: vi.fn() } as unknown as FormEvent);
+    expect(mocks.submit).toHaveBeenCalledTimes(2);
+    mocks.submit.mockClear();
+  });
   it.each(["replacement profile is unavailable", "workflow agents could not be loaded"])(
     "blocks create submission when validation fails: %s",
     (blockedReason) => {
