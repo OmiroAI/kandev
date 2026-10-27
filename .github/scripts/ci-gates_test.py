@@ -28,7 +28,7 @@ class GateTests(unittest.TestCase):
                               ("backend-tests.yml", "test"), ("e2e-tests.yml", "e2e-report")]:
             with self.subTest(workflow=workflow), tempfile.TemporaryDirectory() as directory:
                 source, script, env = gate(workflow, job)
-                env.update(RUN_REQUIRED="true", SIDEBAR_REQUIRED="false",
+                env.update(RUN_REQUIRED="true", SIDEBAR_REQUIRED="false", WINDOWS_ENABLED="true",
                            RUNNER_PLAN="{}", SKIP_REASON="irrelevant-paths",
                            GITHUB_STEP_SUMMARY=str(Path(directory)/"summary"))
                 # The consolidated report must prove reports exist, not only green shard jobs.
@@ -52,6 +52,10 @@ class GateTests(unittest.TestCase):
                 self.assertEqual(run({**skipped, "RUN_REQUIRED": "false"}), 0)
                 self.assertNotEqual(run({**skipped, "RUN_REQUIRED": ""}), 0)
                 if job == "test":
+                    for windows_enabled in ("", "false"):
+                        self.assertEqual(run({"WINDOWS_ENABLED": windows_enabled, "TEST_WINDOWS_RESULT": "skipped"}), 0)
+                        for outcome in ("success", "failure", "cancelled", ""):
+                            self.assertNotEqual(run({"WINDOWS_ENABLED": windows_enabled, "TEST_WINDOWS_RESULT": outcome}), 0)
                     self.assertEqual(run({**skipped, "RUN_REQUIRED": "false", "SIDEBAR_REQUIRED": "true", "SIDEBAR_RESOURCES_RESULT": "success"}), 0)
                     self.assertNotEqual(run({"SIDEBAR_REQUIRED": "true", "SIDEBAR_RESOURCES_RESULT": "skipped"}), 0)
                     self.assertNotEqual(run({"SIDEBAR_REQUIRED": ""}), 0)

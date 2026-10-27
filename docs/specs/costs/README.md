@@ -17,7 +17,9 @@ budgets, and cost-aware model routing.
 ## Ownership
 
 This system owns usage events, cost projections, quota state, budget policy,
-and cheap-model profiles used by task and Office execution.
+and cheap-model profiles used by task and Office execution. It also owns
+external coordinator activity accounting and its projection in existing Stats;
+task access and native execution lifecycle remain with their existing owners.
 
 ## Exclusions
 

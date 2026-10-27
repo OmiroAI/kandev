@@ -34,8 +34,9 @@ async function loadPage(
   sessionId: string,
   offset: number,
   store: ReturnType<typeof useAppStoreApi>,
+  preserveCursor = false,
 ): Promise<TurnChangeHistoryPage> {
-  const key = `${sessionId}:${offset}`;
+  const key = `${sessionId}:${offset}${preserveCursor ? ":pending" : ""}`;
   const active = inFlightPages.get(key);
   if (active) return active;
   const request = listTurnChangeHistory(sessionId, offset, PAGE_SIZE, { cache: "no-store" });
@@ -43,7 +44,11 @@ async function loadPage(
   try {
     const page = await request;
     if (!store.getState().taskSessions.items[sessionId]) return page;
-    store.getState().mergeTurnChangePage(sessionId, page.change_sets, historyPageCursor(page));
+    if (preserveCursor)
+      page.change_sets.forEach((summary) =>
+        store.getState().mergeTurnChangeSummary(sessionId, summary),
+      );
+    else store.getState().mergeTurnChangePage(sessionId, page.change_sets, historyPageCursor(page));
     return page;
   } finally {
     inFlightPages.delete(key);
@@ -52,6 +57,48 @@ async function loadPage(
 
 export function clearTurnChangeRequestsForTest(): void {
   inFlightPages.clear();
+}
+
+const SETTLED_TURN_CHANGE_STATES = new Set([
+  "WAITING_FOR_INPUT",
+  "COMPLETED",
+  "FAILED",
+  "CANCELLED",
+]);
+
+function usePendingTurnChangeRefresh(
+  sessionId: string | null,
+  summaries: TurnChangeSetSummary[],
+  load: (offset: number, preserveCursor?: boolean) => Promise<void>,
+) {
+  const store = useAppStoreApi();
+  const state = useAppStore((store) =>
+    sessionId ? store.taskSessions.items[sessionId]?.state : undefined,
+  );
+  const pending = summaries.some((summary) => summary.availability === "pending");
+  useEffect(() => {
+    if (!pending || !SETTLED_TURN_CHANGE_STATES.has(state ?? "")) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const refresh = async () => {
+      await load(0, true);
+      const current = store.getState();
+      const stillPending = selectTurnChangeSummaries(current.turnChanges, sessionId).some(
+        (summary) => summary.availability === "pending",
+      );
+      if (
+        !cancelled &&
+        stillPending &&
+        SETTLED_TURN_CHANGE_STATES.has(current.taskSessions.items[sessionId ?? ""]?.state ?? "")
+      )
+        timer = setTimeout(() => void refresh(), 1000);
+    };
+    timer = setTimeout(() => void refresh(), 1000);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [pending, state, load, sessionId, store]);
 }
 
 export function useSessionTurnChanges(sessionId: string | null) {
@@ -67,12 +114,12 @@ export function useSessionTurnChanges(sessionId: string | null) {
   const [error, setError] = useState<unknown>(null);
 
   const load = useCallback(
-    async (offset: number) => {
+    async (offset: number, preserveCursor = false) => {
       if (!sessionId) return;
       setLoading(true);
       setError(null);
       try {
-        await loadPage(sessionId, offset, store);
+        await loadPage(sessionId, offset, store, preserveCursor);
       } catch (err) {
         setError(err);
       } finally {
@@ -85,6 +132,8 @@ export function useSessionTurnChanges(sessionId: string | null) {
   useEffect(() => {
     if (sessionId && !loaded) void load(0);
   }, [sessionId, loaded, load]);
+
+  usePendingTurnChangeRefresh(sessionId, summaries, load);
 
   const loadMore = useCallback(() => {
     if (nextOffset !== null) void load(nextOffset);

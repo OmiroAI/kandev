@@ -92,3 +92,9 @@ test("preview comment publication is isolated from pull request content", async 
   assert.doesNotMatch(publication, /actions\/checkout@/);
   assert.doesNotMatch(publication, /pnpm run build:pages/);
 });
+
+test("docs preview deployment requires explicit operator enablement", async () => {
+  const workflow = await fs.readFile(workflowPath, "utf8");
+  const preview = extractJob(workflow, "preview");
+  assert.match(preview, /vars\.KANDEV_DOCS_DEPLOY == 'true'/);
+});

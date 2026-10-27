@@ -262,6 +262,7 @@ func (h *TaskHandlers) registerHTTP(router *gin.Engine) {
 
 	// Task-cost-ledger read surface (docs/specs/task-cost-ledger/spec.md
 	// AC-18): per-task and per-session usage/cost totals.
+	api.POST("/tasks/:id/external-activity", h.httpRecordExternalActivity)
 	api.GET("/tasks/:id/usage", h.httpGetTaskUsageTotals)
 	api.GET("/tasks/:id/sessions/:sessionId/usage", h.httpGetTaskSessionUsageTotals)
 	api.GET("/tasks/:id/sessions/:sessionId/usage/turns", h.httpGetTaskSessionUsageTurns)

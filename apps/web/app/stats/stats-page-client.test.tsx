@@ -13,6 +13,30 @@ vi.mock("@/lib/routing/client-router", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+vi.mock("@/lib/api/domains/stats-api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/api/domains/stats-api")>()),
+  fetchUsageStats: vi.fn().mockResolvedValue({
+    totals: {
+      known_tokens_total: 0,
+      tokens_total: 0,
+      run_count: 0,
+      native_event_count: 0,
+      incomplete_run_count: 0,
+      incomplete_native_event_count: 0,
+      review_iterations: 0,
+      qa_runs: 0,
+      worker_duration_ms: 0,
+    },
+    daily: [],
+    tasks: [],
+    providers: [],
+    next_task_cursor: "",
+    next_provider_cursor: "",
+    daily_from: "2026-01-01",
+    daily_until: "2026-01-03",
+  }),
+}));
+
 vi.mock("@/hooks/use-copy-to-clipboard", () => ({
   useCopyToClipboard: () => ({ copied: false, copy: mocks.copy }),
 }));
@@ -138,9 +162,11 @@ describe("StatsPageClient", () => {
   it("keeps a retained section visible and exposes an accessible retry", () => {
     render(<StatsPageClient workspaceId="ws-1" activeRange="month" />);
 
-    expect(screen.getByRole("status").textContent).toContain(
-      "Statistics are temporarily unavailable",
-    );
+    expect(
+      screen
+        .getByText("Statistics are temporarily unavailable. Try again.")
+        .closest('[role="status"]'),
+    ).toBeTruthy();
     expect(screen.getByText("Activity data")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Retry" }).hasAttribute("disabled")).toBe(false);
 

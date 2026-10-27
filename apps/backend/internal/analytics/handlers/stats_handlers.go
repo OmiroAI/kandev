@@ -63,6 +63,7 @@ func RegisterStatsRoutes(
 
 func (h *StatsHandlers) registerHTTP(router *gin.Engine) {
 	api := router.Group("/api/v1")
+	api.GET("/workspaces/:id/stats/usage", h.httpGetUsageStats)
 	api.GET("/workspaces/:id/stats/global", h.httpGetGlobalStats)
 	api.GET("/workspaces/:id/stats/tasks", h.httpGetTaskStats)
 	api.GET("/workspaces/:id/stats/daily-activity", h.httpGetDailyActivity)

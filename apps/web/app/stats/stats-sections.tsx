@@ -70,7 +70,7 @@ function TimeSpentCard({ global }: { global: GlobalStats }) {
         <div className="mt-3 grid grid-cols-2 gap-4 pt-3 border-t">
           <div>
             <div className="text-lg font-semibold tabular-nums">{global.total_turns}</div>
-            <div className="text-xs text-muted-foreground">{t("stats:totalTurns")}</div>
+            <div className="text-xs text-muted-foreground">{t("stats:usageNativeTurns")}</div>
           </div>
           <div>
             <div className="text-lg font-semibold tabular-nums">{global.total_messages}</div>

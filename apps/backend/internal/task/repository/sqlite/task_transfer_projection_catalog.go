@@ -52,6 +52,7 @@ var transferPreservationTables = []transferWorkspaceProjection{
 	{table: "azure_devops_task_prs", taskColumn: "task_id", identityColumn: "id"},
 	{table: "azure_devops_task_work_items", taskColumn: "task_id", identityColumn: "id"},
 	{table: "task_usage_events", taskColumn: "task_id", identityColumn: "id"},
+	{table: "task_external_activity", taskColumn: "task_id", identityColumn: "id"},
 	{table: "office_cost_events", taskColumn: "task_id", identityColumn: "id"},
 	{table: "task_comments", taskColumn: "task_id", identityColumn: "id"},
 	{table: "exact_task_command_operations", taskColumn: "task_id", identityColumn: "operation_id"},

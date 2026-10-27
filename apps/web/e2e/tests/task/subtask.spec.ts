@@ -455,7 +455,10 @@ test.describe("MCP subtask creation", () => {
       // 3. Wait for the agent to complete — the MCP create_task call happens during execution
       const session = new SessionPage(testPage);
       await session.waitForLoad();
-      await expect(session.idleInput()).toBeVisible({ timeout: 30_000 });
+      // A configured workflow can start its next agent immediately after this turn.
+      await expect(session.activeChat().getByText("Done.", { exact: true }).first()).toBeVisible({
+        timeout: 30_000,
+      });
 
       // 4. Confirm the created task is related to its parent and visible in the
       // sidebar hierarchy, which is independent of the current Kanban workflow filter.

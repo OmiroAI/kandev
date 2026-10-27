@@ -26,6 +26,7 @@
     "agents-and-profiles",
     "executors",
     "integrations",
+    "external-coordinators",
     "automation-and-mcp",
     "crashlytics-alerts",
     "authentication",

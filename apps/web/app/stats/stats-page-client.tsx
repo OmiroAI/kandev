@@ -40,6 +40,7 @@ import {
   TopRepositoriesSkeleton,
   WorkloadSkeleton,
 } from "./stats-skeletons";
+import { UsageStatsSection } from "./usage-stats-section";
 import { PRStatsPanel } from "@/components/github/pr-stats";
 import {
   buildStatsSummary,
@@ -478,11 +479,13 @@ function WorkloadPanel({
 
 function StatsContent({
   sections,
+  range,
   rangeLabel,
   workspaceId,
   onRetrySection,
 }: {
   sections: StatsSections;
+  range: RangeKey;
   rangeLabel: string;
   workspaceId?: string;
   onRetrySection: (
@@ -495,6 +498,7 @@ function StatsContent({
     <div className="min-h-0 flex-1 overflow-auto bg-background">
       <div className="max-w-7xl mx-auto p-6">
         <div className="space-y-5">
+          {workspaceId && <UsageStatsSection workspaceId={workspaceId} range={range} />}
           <OverviewPanel
             global={sections.global}
             git={sections.git}
@@ -597,6 +601,7 @@ export function StatsPageClient({ workspaceId, activeRange, initialError }: Stat
     >
       <StatsContent
         sections={sections}
+        range={range}
         rangeLabel={rangeLabelDisplay}
         workspaceId={workspaceId}
         onRetrySection={retrySection}

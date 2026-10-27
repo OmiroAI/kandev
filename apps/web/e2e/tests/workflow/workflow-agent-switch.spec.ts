@@ -250,10 +250,11 @@ async function runProfileSessionLifecycleScenario(
     (await apiClient.listSessionTurns(originalASessionId)).turns.map((turn) => turn.id),
   );
   await apiClient.moveTask(task.id, workflow.id, stepAAgain.id);
+  let sessions: WorkflowTaskSessions = [];
   await expect
     .poll(
       async () => {
-        const { sessions } = await apiClient.listTaskSessions(task.id);
+        ({ sessions } = await apiClient.listTaskSessions(task.id));
         const primaryA = sessions.find(
           (item) =>
             item.agent_profile_id === profileA.id &&
@@ -262,21 +263,16 @@ async function runProfileSessionLifecycleScenario(
               ? item.id === originalASessionId
               : item.id !== originalASessionId),
         );
+        const profileBSession = sessions.find((item) => item.agent_profile_id === profileB.id);
         if (!primaryA || primaryA.state !== "WAITING_FOR_INPUT") return false;
+        if (profileBSession?.state !== (endPolicy === "park" ? "WAITING_FOR_INPUT" : "COMPLETED"))
+          return false;
         const { turns } = await apiClient.listSessionTurns(primaryA.id);
         return turns.some((turn) => !priorATurnIds.has(turn.id) && Boolean(turn.completed_at));
       },
       { timeout: 30_000 },
     )
     .toBe(true);
-  await expect
-    .poll(async () => {
-      const { sessions } = await apiClient.listTaskSessions(task.id);
-      return sessions.find((item) => item.agent_profile_id === profileB.id)?.state;
-    })
-    .toBe(endPolicy === "park" ? "WAITING_FOR_INPUT" : "COMPLETED");
-
-  const { sessions } = await apiClient.listTaskSessions(task.id);
   expect(sessions).toHaveLength(startPolicy === "reuse" ? 2 : 3);
   const originalA = sessions.find((item) => item.id === originalASessionId);
   const returnedA = sessions.find(

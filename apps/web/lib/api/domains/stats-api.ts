@@ -1,5 +1,7 @@
 import { fetchJson, type ApiRequestOptions } from "../client";
 import type {
+  UsageStatsDTO,
+  UsageSource,
   ModelUsageDTO,
   CompletedTaskActivityDTO,
   DailyActivityDTO,
@@ -81,4 +83,30 @@ export function fetchGitStats(
   range?: StatsRange,
 ) {
   return fetchJson<GitStatsDTO>(statsUrl(workspaceId, "git", range), options);
+}
+
+export type UsageStatsQuery = {
+  source?: UsageSource;
+  limit?: number;
+  taskCursor?: string;
+  providerCursor?: string;
+};
+
+export function fetchUsageStats(
+  workspaceId: string,
+  options?: ApiRequestOptions,
+  range?: StatsRange,
+  query: UsageStatsQuery = {},
+) {
+  const params = new URLSearchParams({
+    range: range ?? "month",
+    source: query.source ?? "all",
+    limit: String(query.limit ?? 50),
+  });
+  if (query.taskCursor) params.set("task_cursor", query.taskCursor);
+  if (query.providerCursor) params.set("provider_cursor", query.providerCursor);
+  return fetchJson<UsageStatsDTO>(
+    `${statsUrl(encodeURIComponent(workspaceId), "usage")}?${params.toString()}`,
+    options,
+  );
 }

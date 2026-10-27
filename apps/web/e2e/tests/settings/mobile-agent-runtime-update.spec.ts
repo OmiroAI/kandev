@@ -255,10 +255,10 @@ test.describe("managed agent runtime updates on mobile", () => {
     const drawer = testPage.getByTestId(`agent-update-drawer-${runtime.agentName}`);
     await expect(drawer).toBeVisible();
     const migrationChoice = drawer.getByTestId(`agent-update-migrate-family-${runtime.agentName}`);
-    const choiceBox = await migrationChoice.boundingBox();
-    expect(choiceBox).not.toBeNull();
-    expect(choiceBox!.height).toBeGreaterThanOrEqual(44);
-    expect(choiceBox!.width).toBeGreaterThanOrEqual(44);
+    const choiceBox = await settledBoundingBox(migrationChoice);
+    // Chromium reports transformed coordinates with sub-layout-unit rounding.
+    expect(Math.round(choiceBox.height * 64) / 64).toBeGreaterThanOrEqual(44);
+    expect(Math.round(choiceBox.width * 64) / 64).toBeGreaterThanOrEqual(44);
     expect(runtime.postCount()).toBe(0);
     await migrationChoice.tap();
     await expect(drawer).toContainText("1.18.32 → 2.0.18");

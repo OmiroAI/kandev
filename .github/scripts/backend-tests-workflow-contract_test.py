@@ -34,6 +34,14 @@ class BackendTestsWorkflowContractTest(unittest.TestCase):
         self.workflow = WORKFLOW.read_text(encoding="utf-8")
         self.base_image_workflow = BASE_IMAGE_WORKFLOW.read_text(encoding="utf-8")
 
+    def test_windows_ci_is_opt_in_and_gate_accepts_only_explicit_skip(self) -> None:
+        windows = self.workflow.partition("  test-windows:\n")[2]
+        self.assertIn("if: needs.changes.outputs.run == 'true' && vars.KANDEV_WINDOWS_CI == 'true'", windows)
+        gate = step_block(self.workflow, "Verify required jobs and evidence")
+        self.assertIn("WINDOWS_ENABLED: ${{ vars.KANDEV_WINDOWS_CI }}", gate)
+        self.assertIn('if [[ "${name}" == "test-windows" && "${WINDOWS_ENABLED}" != "true" ]]; then', gate)
+        self.assertIn('required=skipped', gate)
+
     def test_windows_build_cache_refreshes_by_suite_without_cohort_duplication(self) -> None:
         discover = step_block(self.workflow, "Resolve Windows Go build cache")
         self.assertIn("go env GOCACHE", discover)

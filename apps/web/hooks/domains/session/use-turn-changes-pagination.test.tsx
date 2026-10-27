@@ -141,4 +141,55 @@ describe("session turn change history hydration", () => {
       ),
     ).toBe(true);
   });
+
+  it("refreshes an idle session's pending snapshot when the finalized event was missed", async () => {
+    vi.useFakeTimers();
+    const pending = { ...summary("missed", 1), availability: "pending" as const, file_count: 0 };
+    mockHistory.state.taskSessions.items["session-1"] = { state: "WAITING_FOR_INPUT" };
+    mockHistory.state.turnChanges.bySession["session-1"] = [pending];
+    mockHistory.listPage.mockResolvedValue(page(0, [summary("missed", 1)]));
+    const { unmount } = renderHook(() => useSessionTurnChanges("session-1"));
+    try {
+      expect(mockHistory.listPage).not.toHaveBeenCalled();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1000);
+      });
+      expect(mockHistory.listPage).toHaveBeenCalledTimes(1);
+      expect(mockHistory.state.turnChanges.bySession["session-1"][0].availability).toBe("ready");
+      expect(mockHistory.state.turnChanges.nextOffsetBySession["session-1"]).toBe(50);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5000);
+      });
+      expect(mockHistory.listPage).toHaveBeenCalledTimes(1);
+    } finally {
+      unmount();
+      vi.useRealTimers();
+    }
+  });
+
+  it("does not poll pending history during an active turn or after unmount", async () => {
+    vi.useFakeTimers();
+    mockHistory.state.taskSessions.items["session-1"] = { state: "RUNNING" };
+    mockHistory.state.turnChanges.bySession["session-1"] = [
+      { ...summary("active", 1), availability: "pending" },
+    ];
+    const { unmount } = renderHook(() => useSessionTurnChanges("session-1"));
+    try {
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5000);
+      });
+      expect(mockHistory.listPage).not.toHaveBeenCalled();
+      unmount();
+      mockHistory.state.taskSessions.items["session-1"] = { state: "WAITING_FOR_INPUT" };
+      const idle = renderHook(() => useSessionTurnChanges("session-1"));
+      expect(vi.getTimerCount()).toBe(1);
+      idle.unmount();
+      expect(vi.getTimerCount()).toBe(0);
+      await vi.advanceTimersByTimeAsync(5000);
+      expect(mockHistory.listPage).not.toHaveBeenCalled();
+    } finally {
+      unmount();
+      vi.useRealTimers();
+    }
+  });
 });

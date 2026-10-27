@@ -22,17 +22,25 @@ async function twoBoards(apiClient: ApiClient, seedData: SeedData) {
   return { first, second };
 }
 
-async function chooseIdentity(page: Page) {
+async function chooseIdentity(page: Page, seedData: SeedData) {
   await page.getByLabel("Name").fill(NAME);
-  await page.getByTestId("coordinator-agent-profile-picker").click();
-  await page.getByRole("option").first().click();
+  const agent = page.getByTestId("coordinator-agent-profile-picker");
+  await agent.click();
+  await page
+    .getByTestId("coordinator-agent-profile-picker-dropdown")
+    .locator(`[role="option"][data-value="${seedData.agentProfileId}"]`)
+    .click();
+  await expect(agent).toBeFocused();
   await page.getByTestId("executor-profile-selector").first().click();
-  await page.getByRole("option").first().click();
+  await page
+    .getByRole("listbox")
+    .locator(`[role="option"][data-value="${seedData.worktreeExecutorProfileId}"]`)
+    .click();
 }
 
-async function reachReview(page: Page) {
+async function reachReview(page: Page, seedData: SeedData) {
   await page.getByLabel("Name").fill(NAME);
-  if (await page.getByTestId("setup-next").isDisabled()) await chooseIdentity(page);
+  if (await page.getByTestId("setup-next").isDisabled()) await chooseIdentity(page, seedData);
   for (let i = 0; i < 5; i++) await page.getByTestId("setup-next").click();
   await expect(page.getByTestId("setup-review")).toBeVisible();
 }
@@ -54,7 +62,7 @@ test.describe("Guided setup", () => {
     await expect(testPage.getByTestId("setup-next")).toBeDisabled();
     await testPage.getByLabel("Name").fill(NAME);
     if (await testPage.getByTestId("setup-next").isDisabled()) {
-      await chooseIdentity(testPage);
+      await chooseIdentity(testPage, seedData);
     }
     await testPage.getByTestId("setup-next").click();
 
@@ -115,7 +123,7 @@ test.describe("Guided setup", () => {
       }),
     );
     await testPage.goto(linkToCoordinatorAdd(seedData.workspaceId));
-    await reachReview(testPage);
+    await reachReview(testPage, seedData);
     const answered = waitForHttp(testPage, "POST", SETUP_PATH);
     await testPage.getByTestId("setup-finish").click();
     await answered;
@@ -133,7 +141,7 @@ test.describe("Guided setup", () => {
   }) => {
     await testPage.route(SETUP_PATH, (route) => route.abort("failed"));
     await testPage.goto(linkToCoordinatorAdd(seedData.workspaceId));
-    await reachReview(testPage);
+    await reachReview(testPage, seedData);
     await testPage.getByTestId("setup-finish").click();
     await expect(testPage.getByTestId("setup-banner-unconfirmed")).toBeVisible();
     await expect(testPage.getByTestId("setup-review")).toBeVisible();

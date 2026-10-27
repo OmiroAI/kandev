@@ -519,6 +519,7 @@ test.describe("LSP file intelligence", () => {
     await testPage.keyboard.press("Escape");
     const editor = testPage.locator(".monaco-editor:visible");
     await editor.click();
+    await expect(editor.locator(".native-edit-context")).toBeFocused();
     await testPage.keyboard.press("Control+Space");
     const manualCompletion = await expectFakeLspEvent(
       backend,

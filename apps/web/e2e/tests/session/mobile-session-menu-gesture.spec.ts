@@ -143,6 +143,7 @@ test("mobile: opening a native session menu owns the completed touch gesture", a
     phase = "repeated touch opening and outside dismissal";
     await trigger.tap();
     await expect(menu).toBeVisible();
+    await waitForFiniteAnimations(menu);
     await testPage.touchscreen.tap(16, 16);
     await expect(menu).toHaveCount(0);
     await expect(sheet).toBeVisible();
