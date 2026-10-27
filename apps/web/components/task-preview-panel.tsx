@@ -8,7 +8,7 @@ import { useAppStore } from "@/components/state-provider";
 import { useResponsiveBreakpoint } from "@/hooks/use-responsive-breakpoint";
 import type { UseEnsureTaskSessionResult } from "@/hooks/domains/session/use-ensure-task-session";
 import type { Task } from "./kanban-card";
-import { PreviewTaskDetails } from "./task/preview-task-details";
+import { PreviewSessionTabs } from "./task/preview-session-tabs";
 import { TaskMoveErrorBanner } from "./task/task-move-error-banner";
 import {
   MinimalWorkflowStepper,
@@ -307,8 +307,9 @@ export function TaskPreviewPanel({
       {/* Content */}
       <div className="flex-1 min-h-0 flex flex-col">
         {task ? (
-          <PreviewTaskDetails
-            task={task}
+          <PreviewSessionTabs
+            taskId={task.id}
+            description={task.description}
             sessionId={sessionId}
             isArchived={isArchived}
             ensureSession={ensureSession}
