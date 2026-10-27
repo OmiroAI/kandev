@@ -383,7 +383,6 @@ export function PreviewSessionTabs({
         resumption={resumption}
       >
         <PreviewTaskDescription
-          taskId={taskId}
           description={description}
           fallback={
             <PreviewNoSessionsState

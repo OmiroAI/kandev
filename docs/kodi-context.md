@@ -106,6 +106,8 @@ Footer and shortcut regressions reproduce the disabled Update path; owning
 submission tests verify the existing metadata-save behavior.
 
 Sessionless previews must also show the persisted description and questions,
-using the existing shared description editor instead of requiring a chat session.
+without requiring a chat session. Read full task details into the existing
+overview store: lightweight board records can omit descriptions. Keep editing
+in the existing task edit dialog, rather than using an Office-only editor.
 Keep the previous empty state for tasks without descriptions and retain recovery
 feedback. The disposable preview pilot verifies reading and saving actual text.

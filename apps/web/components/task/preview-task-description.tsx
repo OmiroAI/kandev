@@ -1,14 +1,46 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { TaskDescriptionEditable } from "./simple/components/task-description-editable";
+import { Button } from "@kandev/ui/button";
+import { PanelLoadingState } from "@/components/panel-loading-state";
+
+export function PreviewTaskDetailState({
+  loading,
+  error,
+  onRetry,
+  children,
+}: {
+  loading: boolean;
+  error: boolean;
+  onRetry: () => void;
+  children: ReactNode;
+}) {
+  const { t } = useTranslation();
+  if (loading)
+    return (
+      <PanelLoadingState testId="preview-task-details-loading" label={t("common:loadingTask")} />
+    );
+  if (error)
+    return (
+      <div role="alert" className="flex flex-col items-center gap-3 p-4">
+        <span>{t("common:requestFailed")}</span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRetry}
+          className="cursor-pointer [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:min-w-11"
+        >
+          {t("common:retryPreview")}
+        </Button>
+      </div>
+    );
+  return children;
+}
 
 export function PreviewTaskDescription({
-  taskId,
   description,
   children,
   fallback,
 }: {
-  taskId: string;
   description?: string;
   children?: ReactNode;
   fallback: ReactNode;
@@ -19,7 +51,7 @@ export function PreviewTaskDescription({
       className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-4"
       data-testid="preview-task-description"
     >
-      <TaskDescriptionEditable taskId={taskId} description={description} sessions={[]} />
+      <p className="mt-4 whitespace-pre-wrap break-words text-sm">{description}</p>
       {children}
     </div>
   );
