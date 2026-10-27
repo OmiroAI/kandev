@@ -10,6 +10,8 @@ import { waitForSessionDone } from "../../helpers/session";
 import { SessionPage } from "../../pages/session-page";
 import { useRegularMode } from "../../helpers/regular-mode";
 
+import { settledBoundingBox } from "../../helpers/settled-box";
+
 const TEST_RUNTIME_PREFIX = "e2e-mcp-task-";
 
 async function cleanupMCPServers(apiClient: ApiClient, workspaceId: string) {
@@ -244,11 +246,11 @@ test.describe("Task MCP selection", () => {
       expect(trigger!.height).toBeGreaterThanOrEqual(44);
       const drawer = testPage.locator('[data-slot="drawer-content"][data-state="open"]');
       await expect(drawer).toHaveCount(1);
-      const box = await drawer.boundingBox();
-      expect(box!.height).toBeLessThanOrEqual(800);
+      const box = await settledBoundingBox(drawer);
+      expect(Math.round(box.height * 64) / 64).toBeLessThanOrEqual(800);
       const close = await drawer.getByTestId("mcp-explorer-close").boundingBox();
-      expect(close!.width).toBeGreaterThanOrEqual(44);
-      expect(close!.height).toBeGreaterThanOrEqual(44);
+      expect(Math.round(close!.width * 64) / 64).toBeGreaterThanOrEqual(44);
+      expect(Math.round(close!.height * 64) / 64).toBeGreaterThanOrEqual(44);
     });
   });
 });

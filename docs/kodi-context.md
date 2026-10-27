@@ -72,3 +72,25 @@ can legitimately overlap its first success toast. MCP report tests keep their
 HTTP route installed across report-state cases, then remove only their handler.
 PR #2's trace showed a reload bypassing a removed/reinstalled per-case route.
 Focused cleanup and MCP cases passed three attempts each without retries.
+
+
+## Recovery and readiness regressions
+
+[PR #2](https://github.com/OmiroAI/kandev/pull/2) also covers five failures from
+the fork's Linux CI. A pending turn-history snapshot can outlive a missed final
+notification. Refresh pending summaries only after the session settles, merge
+without resetting history pagination, and stop when resolved or unmounted.
+Fake-clock tests cover the missed event, cursor preservation, active-turn silence
+and timer cleanup; the full mobile turn-history spec verifies rendering.
+
+When an SSH execution loses registration to an already-adopted execution, its
+rollback must not kill the winning remote agentctl. Match the task/session and
+complete SSH process identity before detaching only the losing transport; a
+missing owner or different process still gets normal forced rollback. The race
+regression, full lifecycle race suite and five real SSH passthrough scenarios
+cover interruption, reconnect, sibling input, Stop and Resume.
+
+Guided-setup tests select seeded profile IDs and wait for picker focus return
+before opening the next picker. Lifecycle tests assert the related session
+states from one observed snapshot. Tablet geometry uses settled dimensions at
+1/64px layout precision while preserving the size and touch-target bounds.

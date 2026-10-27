@@ -177,26 +177,27 @@ is part of this change.
 ### CI follow-up
 
 Windows execution is opt-in at the owner's request; Linux/static, PostgreSQL
-and browser gates remain required. Docs previews are opt-in so validation does
-not depend on the upstream publisher repository. Executable gate fixtures cover
-both enabled and disabled Windows results.
+and browser gates remain required. Docs previews are opt-in; validation remains
+active. Workflow fixtures cover both enabled and disabled Windows results.
 
-Full-branch lint uses named native/external source constants. Browser fixes use
-exact repository option names, assert Monaco keyboard focus, measure settled
-mobile targets, seed pseudo-locale before boot, and observe completed turns
-instead of assuming workflow automation leaves a composer idle. Cleanup restores
-storage settings through the existing API helper. MCP report cases retain one
-scoped HTTP interceptor across reloads, preserving every product assertion.
+Browser fixtures use exact seeded selections, completed turn evidence, focus
+and animation readiness, settled geometry, pre-boot locale, scoped mock routes,
+and API-based cleanup. Workflow lifecycle assertions use a single related-state
+snapshot. All product assertions and the original size bounds remain.
 
-Local verification passed: 26 backend workflow contracts, five executable gate
-tests, three docs workflow tests, analytics UsageStats repository tests under
-`-race`, unfiltered analytics-package lint and scoped ESLint/spec checks. Exact
-failed scenarios ran without retries: six desktop/three phone attempts for the
-initial failures, 12 pseudo-locale attempts, three menu gestures, three subtask
-attempts, three storage cleanups, and three mobile MCP reports. The shared MCP
-desktop scenario is also part of verification.
+CI also exposed two recovery defects. Pending historical turn summaries now
+refresh after a session settles, preserving pagination and stopping when final
+or unmounted. A losing SSH registration now detaches its transport when the
+winning execution owns the identical remote process, preserving that process;
+unowned or different processes still receive forced rollback cleanup.
 
-A PostgreSQL cohort hit a dependency-proxy HTTP/2 error before tests ran; this
-is transport evidence, not passing acceptance. Fresh remote CI and independent
-acceptance remain pending after the final fixture changes. No merge, deployment
-or dispatch activation is claimed.
+Local checks passed the full lifecycle package under `-race`, the targeted SSH
+ownership regression, 122 owning frontend tests, all five real SSH passthrough
+cases, all three mobile turn-history cases and nine desktop cases covering guided
+setup, tablet geometry and all four workflow lifecycle policies, without browser
+retries. TypeScript and scoped lint are part of final verification. Earlier API,
+Stats and workflow-contract evidence remains recorded above and in the PR.
+
+The prior dependency-proxy download failure occurred before PostgreSQL tests ran.
+Fresh remote CI and independent acceptance remain required for the resulting
+commit. No merge, deployment or dispatch activation is claimed.
