@@ -309,6 +309,7 @@ export function TaskPreviewPanel({
         {task ? (
           <PreviewSessionTabs
             taskId={task.id}
+            description={task.description}
             sessionId={sessionId}
             isArchived={isArchived}
             ensureSession={ensureSession}
