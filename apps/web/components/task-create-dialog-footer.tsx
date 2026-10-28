@@ -22,6 +22,7 @@ import { KeyboardShortcutTooltip } from "@/components/keyboard-shortcut-tooltip"
 import { useTranslation } from "react-i18next";
 
 type UpdateButtonProps = {
+  blocked?: boolean;
   isCreatingTask: boolean;
   hasTitle: boolean;
   editDependenciesReady?: boolean;
@@ -29,6 +30,7 @@ type UpdateButtonProps = {
 };
 
 function UpdateButton({
+  blocked,
   isCreatingTask,
   hasTitle,
   editDependenciesReady,
@@ -40,7 +42,7 @@ function UpdateButton({
       type="button"
       variant="default"
       className="w-full cursor-pointer sm:w-auto gap-1.5"
-      disabled={isCreatingTask || !hasTitle || editDependenciesReady === false}
+      disabled={blocked || isCreatingTask || !hasTitle || editDependenciesReady === false}
       onClick={onUpdate}
     >
       {isCreatingTask ? (
@@ -372,9 +374,13 @@ export function computeDisabledReason(
 }
 
 function resolveButtonKind(props: TaskCreateDialogFooterProps, showStartTask: boolean): ButtonKind {
-  if (props.isTaskStarted) return "update";
+  if (isUpdateOnly(props)) return "update";
   if (showStartTask) return "start-task";
   return "default";
+}
+
+function isUpdateOnly(props: TaskCreateDialogFooterProps): boolean {
+  return props.isTaskStarted || (props.isEditMode && !props.agentProfileId);
 }
 
 function computeFooterState(props: TaskCreateDialogFooterProps) {
@@ -399,8 +405,9 @@ function computeFooterState(props: TaskCreateDialogFooterProps) {
 
 export function isNativeSubmitDisabled(props: TaskCreateDialogFooterProps): boolean {
   const { showStartTask, splitDisabled, defaultDisabled } = computeFooterState(props);
-  if (props.isTaskStarted) {
+  if (isUpdateOnly(props)) {
     return (
+      Boolean(props.submitBlockedReason) ||
       props.isCreatingTask ||
       !props.hasTitle ||
       (props.isEditMode && props.editDependenciesReady === false)
@@ -461,9 +468,10 @@ export const TaskCreateDialogFooter = memo(function TaskCreateDialogFooter(
       >
         <span className="inline-flex w-full sm:w-auto" data-testid="submit-start-agent-wrapper">
           {(() => {
-            if (isTaskStarted) {
+            if (isUpdateOnly(props)) {
               return (
                 <UpdateButton
+                  blocked={Boolean(props.submitBlockedReason)}
                   isCreatingTask={isCreatingTask}
                   hasTitle={hasTitle}
                   editDependenciesReady={props.editDependenciesReady}

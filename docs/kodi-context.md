@@ -94,3 +94,20 @@ Guided-setup tests select seeded profile IDs and wait for picker focus return
 before opening the next picker. Lifecycle tests assert the related session
 states from one observed snapshot. Tablet geometry uses settled dimensions at
 1/64px layout precision while preserving the size and touch-target bounds.
+
+## Editing external-worker tickets
+
+[The clarification integration](https://github.com/OmiroAI/kodi/pull/45) exposed
+a metadata-only task edit blocked by missing native agent compatibility, even
+with a repository selected. Reuse the existing update-only handler when an edit
+has no agent profile, and apply the same distinction to form/keyboard guards.
+Keep pending uploads, edit dependencies and all native-start restrictions.
+Footer and shortcut regressions reproduce the disabled Update path; owning
+submission tests verify the existing metadata-save behavior.
+
+Sessionless previews must also show the persisted description and questions,
+without requiring a chat session. The preview already receives the task's
+description; render that data directly. Keep editing in the existing task edit
+dialog: the Office description editor requires its own page context provider.
+Keep the previous empty state for tasks without descriptions and retain recovery
+feedback. The disposable preview pilot verifies reading and saving actual text.

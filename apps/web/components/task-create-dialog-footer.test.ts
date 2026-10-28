@@ -53,6 +53,39 @@ function makeProps(
 }
 
 describe("isNativeSubmitDisabled", () => {
+  it("allows metadata edits without a native agent or repository selection", () => {
+    expect(
+      isNativeSubmitDisabled(
+        makeProps({
+          isCreateMode: false,
+          isEditMode: true,
+          agentProfileId: "",
+          hasRepositorySelection: false,
+          hasAllBranches: false,
+          noCompatibleAgent: true,
+          editDependenciesReady: true,
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it("keeps metadata-only edits blocked while uploads or dependencies are pending", () => {
+    for (const blocked of [
+      { submitBlockedReason: "upload pending" },
+      { editDependenciesReady: false },
+    ]) {
+      expect(
+        isNativeSubmitDisabled(
+          makeProps({
+            isCreateMode: false,
+            isEditMode: true,
+            agentProfileId: "",
+            ...blocked,
+          }),
+        ),
+      ).toBe(true);
+    }
+  });
   it("matches pending uploads and other externally blocked native submissions", () => {
     expect(isNativeSubmitDisabled(makeProps({ submitBlockedReason: "upload pending" }))).toBe(true);
   });

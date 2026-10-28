@@ -40,6 +40,7 @@ import {
   sortSessions,
 } from "./session-sort";
 import { useTranslation } from "react-i18next";
+import { PreviewEmptyState, PreviewTaskDescription } from "./preview-task-description";
 
 const LABEL_SEPARATOR = " \u2022 ";
 const PLAN_TAB_ID = "plan";
@@ -48,6 +49,7 @@ const PREVIEW_TAB_CLASS_NAME =
 
 type PreviewSessionTabsProps = {
   taskId: string;
+  description?: string;
   sessionId: string | null;
   isArchived?: boolean;
   ensureSession?: UseEnsureTaskSessionResult;
@@ -262,6 +264,7 @@ function PreviewSessionTabDialogHost({
 // eslint-disable-next-line max-lines-per-function -- preview owns the shared session and Plan-tab composition.
 export function PreviewSessionTabs({
   taskId,
+  description,
   sessionId,
   isArchived,
   ensureSession,
@@ -379,11 +382,24 @@ export function PreviewSessionTabs({
         statusSummary={taskStatusSummary}
         resumption={resumption}
       >
-        <PreviewNoSessionsState
-          ensureSession={ensureSession}
-          resumption={resumption}
-          workspaceId={workspaceId}
-        />
+        <PreviewTaskDescription
+          description={description}
+          fallback={
+            <PreviewNoSessionsState
+              ensureSession={ensureSession}
+              resumption={resumption}
+              workspaceId={workspaceId}
+            />
+          }
+        >
+          {(ensureSession?.status === "preparing" || ensureSession?.status === "error") && (
+            <PreviewNoSessionsState
+              ensureSession={ensureSession}
+              resumption={resumption}
+              workspaceId={workspaceId}
+            />
+          )}
+        </PreviewTaskDescription>
       </PreviewTaskErrorShell>
     );
   }
@@ -633,20 +649,6 @@ function RunningSpinner() {
 
 function PreviewLoadingState({ label }: { label: string }) {
   return <PanelLoadingState testId="preview-loading-state" label={label} />;
-}
-
-function PreviewEmptyState() {
-  const { t } = useTranslation();
-  return (
-    <div className="flex h-full flex-col">
-      <div
-        className="flex flex-1 items-center justify-center text-sm text-muted-foreground"
-        data-testid="preview-empty-state"
-      >
-        {t("task:noAgentsYet2")}
-      </div>
-    </div>
-  );
 }
 
 /** Sessionless state: preparing/error/empty, per `ensureSession`. */
